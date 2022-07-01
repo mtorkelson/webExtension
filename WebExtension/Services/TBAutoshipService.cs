@@ -42,7 +42,7 @@ namespace Tori.AutoShips
         {
             if (order.Void)
             {
-                _logger.LogInformation($"{ClassName}.Log Issue", "Error with Autoship");
+                _logger.LogInformation($"{ClassName}.Log Issue", $"Error with Autoship (ID {autoShipInfo.AutoshipId})");
                 return new RetryRule
                 {
                     Charge = false

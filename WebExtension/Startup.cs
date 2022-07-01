@@ -1,14 +1,12 @@
 using DirectScale.Disco.Extension.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using WebExtension.Hooks.Autoships;
+using tori.Hooks.Autoships;
+using Tori.AutoShips;
 
 namespace WebExtension
 {
@@ -25,7 +23,12 @@ namespace WebExtension
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddDirectScale();
+            services.AddDirectScale(options =>
+            {
+                options.AddHook<ShouldChargeAutoshipHook>();
+                options.AddHook<ShouldRetryAutoshipOrderHook>();
+            });
+            services.AddSingleton<ITBAutoshipService, TBAutoshipService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

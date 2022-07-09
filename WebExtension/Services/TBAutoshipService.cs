@@ -17,17 +17,21 @@ namespace Tori.AutoShips
         private readonly IOrderService _orderService;
         private readonly IAssociateService _associateService;
         private readonly ILogger<TBAutoshipService> _logger;
+        private readonly ITicketService _ticketService;
         private static readonly string ClassName = typeof(TBAutoshipService).FullName;
 
         public TBAutoshipService(
             IOrderService orderService,
             IAssociateService associateService,
-            ILogger<TBAutoshipService> logger
+            ILogger<TBAutoshipService> logger,
+            ITicketService ticketService
             )
         {
             _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
             _associateService = associateService ?? throw new ArgumentNullException(nameof(associateService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _ticketService = ticketService ?? throw new ArgumentNullException(nameof(ticketService));
+
         }
 
         /// <summary>
@@ -64,7 +68,15 @@ namespace Tori.AutoShips
                 if (associate.StatusId == 2) { updatedStatus = AssociateStatus.Suspended; }
                 if (associate.StatusId == 4) { updatedStatus = AssociateStatus.Cancelled; }
 
-                await _associateService.SetAssociateStatus(associate.AssociateId, (int)updatedStatus);
+                try { 
+                    await _associateService.SetAssociateStatus(associate.AssociateId, (int)updatedStatus);
+                    // If something goes wrong with this associate status setting, put a message in the associate log.
+                    // But let's not kill the autoship run... a lot happens in the SetAssociateStatus call, including 
+                    // deleting payment methods, which can make external calls that can fail.
+                } catch (Exception e)
+                {
+                    await _ticketService.LogEvent(associate.AssociateId, $"After two autoship declines, failed to set associate status to {updatedStatus}. Error: {e.Message}", "", "AutoshipProcess");
+                }
 
                 return new RetryRule
                 {

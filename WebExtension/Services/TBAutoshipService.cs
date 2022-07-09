@@ -1,10 +1,6 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Threading.Tasks;
 using DirectScale.Disco.Extension;
-using DirectScale.Disco.Extension.Hooks.Associates.Enrollment;
 using DirectScale.Disco.Extension.Services;
 using Microsoft.Extensions.Logging;
 using WebExtension.Models.Distributors;
@@ -20,18 +16,18 @@ namespace Tori.AutoShips
     {
         private readonly IOrderService _orderService;
         private readonly IAssociateService _associateService;
-        private readonly ILogger _logger;
+        private readonly ILogger<TBAutoshipService> _logger;
         private static readonly string ClassName = typeof(TBAutoshipService).FullName;
 
         public TBAutoshipService(
             IOrderService orderService,
             IAssociateService associateService,
-            ILogger loggingService
+            ILogger<TBAutoshipService> logger
             )
         {
             _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
             _associateService = associateService ?? throw new ArgumentNullException(nameof(associateService));
-            _logger = loggingService ?? throw new ArgumentNullException(nameof(loggingService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
